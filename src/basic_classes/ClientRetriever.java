@@ -1,7 +1,13 @@
 package basic_classes;
-
+/**
+ * This class help to find out which client currently logged in
+  
+ * @author Avi
+ *
+ */
 public class ClientRetriever {
 	
+	/** Field represents the id of client or retriving client */
 	private static long ID;
 
 	/**

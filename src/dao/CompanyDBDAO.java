@@ -9,27 +9,34 @@ import java.util.Collection;
 
 import basic_classes.Company;
 import basic_classes.ClientRetriever;
-import basic_classes.ConnectionPool;
 import basic_classes.Coupon;
 import basic_classes.CouponType;
 import exceptions.CompanyNotFoundException;
 import exceptions.DuplicateCompanyException;
 import exceptions.SystemGoingDownException;
-
+	/**
+	 * The class Company is the class that do all the required access
+	 * work with DB using the methods below.
+	 * implements  CompanyDAO and apply the following methods.
+	 * this class using the SqlQueries class for all the SQL queries 
+	 * in all methods.
+	 * @author chaim_chagbi
+	 *
+	 */
 public class CompanyDBDAO implements CompanyDAO {
 
-	/** Failed represents connection pool ....*/
+	/** Field represents connection pool ....*/
 	private ConnectionPool pool;
 
 	/**
-	 * Creates new instance of
+	 * Creates new instance of connection pool
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
 	public CompanyDBDAO() throws ClassNotFoundException, SQLException {
 		pool = ConnectionPool.getInstance();
 	}
-
+	
 	@Override
 	public void createCompany(Company company) throws DuplicateCompanyException, ClassNotFoundException, 
 	SQLException, InterruptedException, CompanyNotFoundException, SystemGoingDownException {
@@ -69,7 +76,8 @@ public class CompanyDBDAO implements CompanyDAO {
 			if (stm != null) stm.close();
 		}
 	}
-
+	
+	@SuppressWarnings("resource")
 	@Override
 	public void removeCompany(Company company) throws ClassNotFoundException, SQLException, 
 	InterruptedException, CompanyNotFoundException, SystemGoingDownException {
@@ -117,27 +125,7 @@ public class CompanyDBDAO implements CompanyDAO {
 				stm.executeBatch();
 			}
 
-			//			String selectFromCompany_Coupon = "SELECT * FROM company_coupon WHERE COMP_ID = ?";
-			//			stm = tempConn.prepareStatement(selectFromCompany_Coupon);
-			//			stm.setLong(1, company.getId());
-			//			rSet = stm.executeQuery();
-			//			while (rSet.next()) {
-			//				String deleteFromCustomer_Coupon = "DELETE FROM customer_coupon WHERE COUPON_ID = ?";
-			//				stm = tempConn.prepareStatement(deleteFromCustomer_Coupon);
-			//				stm.setLong(1, rSet.getLong(2));
-			//				stm.executeUpdate();
-			//
-			//				String deleteCouponFromCoupon = "DELETE FROM coupon WHERE ID = ?";
-			//				stm = tempConn.prepareStatement(deleteCouponFromCoupon);
-			//				stm.setLong(1, rSet.getLong(2));
-			//				stm.executeUpdate();
-			//			}
-			//
-			//			String deleteFromCompany_Coupon = "DELETE FROM company_coupon WHERE COMP_ID = ?";
-			//			stm = tempConn.prepareStatement(deleteFromCompany_Coupon);
-			//			stm.setLong(1, company.getId());
-			//			stm.executeUpdate();
-
+		
 			tempConn.commit();
 			flag = true;
 		} finally {
@@ -165,6 +153,7 @@ public class CompanyDBDAO implements CompanyDAO {
 		PreparedStatement stm = null;
 		try {
 			tempConn = pool.getConnection();
+			tempConn.setAutoCommit(false);
 
 			String update = "UPDATE company SET PASSWORD = ?, EMAIL = ? WHERE ID = ?";
 			stm = tempConn.prepareStatement(update);
@@ -172,6 +161,7 @@ public class CompanyDBDAO implements CompanyDAO {
 			stm.setString(2, company.getEmail());
 			stm.setLong	 (3, company.getId());
 			stm.executeUpdate();
+			tempConn.commit();
 
 			System.out.println(" *** Updating company (" + company.getCompName() + 
 					") in DB. - Result: SUCCEEDED! ***");
@@ -308,9 +298,8 @@ public class CompanyDBDAO implements CompanyDAO {
 	}
 
 	/**
-	 * <h1><i>getID</i></h1><pre>public long getID({@link String} companyName) 
-	 * 	   throws {@link ClassNotFoundException},{@link SQLException},{@link InterruptedException}</pre>
-	 * Checks if database contains company with specified name. If company exists returns its id, otherwise -1.
+	 * Checks if database contains company with specified name. 
+	 * If company exists returns its id, otherwise -1.
 	 * @param companyName - String representing specified company name to check
 	 * @return id of company if it exists in DB, otherwise -1
 	 * @throws ClassNotFoundException
@@ -351,6 +340,15 @@ public class CompanyDBDAO implements CompanyDAO {
 		return companyID;
 	}
 
+	/**
+	 * Gets all company's collection of coupons by specified company id
+	 * @param companyID - specified id of company
+	 * @return - collection of coupons  of specified company
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 * @throws InterruptedException
+	 * @throws SystemGoingDownException
+	 */
 	private Collection<Coupon> getCouponsByID(long companyID) throws ClassNotFoundException, 
 	SQLException, InterruptedException, SystemGoingDownException {
 		if (pool.getSystemStatus()) {
@@ -405,211 +403,4 @@ public class CompanyDBDAO implements CompanyDAO {
 	
 		return allCoupons;
 	}
-
-	//	public Company getCompanyByName(String companyName) throws ClassNotFoundException, 
-	//	SQLException, InterruptedException {
-	//		Company company = null;
-	//		Connection tempConn = null;
-	//		PreparedStatement stm = null;
-	//		ResultSet rSet = null;
-	//		try {
-	//			tempConn = pool.getConnection();
-	//
-	////			String selectCompany = "SELECT * FROM company WHERE COMP_NAME = ?";
-	////			stm = tempConn.prepareStatement(ComapanySQLStatements.SELECT_COMPANY(null, "COMP_NAME = ?"));
-	//			stm = tempConn.prepareStatement(ComapanySQLStatements.SELECT_COMPANY_BY_NAME());
-	//			stm.setString(1, companyName);
-	//
-	//			rSet = stm.executeQuery();
-	//			while (rSet.next()) {
-	//				company = new Company();
-	//				company.setId(rSet.getLong("ID"));
-	//				company.setCompName(companyName);
-	//				company.setPassword(rSet.getString("PASSWORD"));
-	//				company.setEmail(rSet.getString("EMAIL"));
-	//			}
-	//			company.setCoupons(getCouponsByCompID(company.getId()));
-	//		} finally {
-	//			if (tempConn != null) pool.returnConnection(tempConn);
-	//			if (stm != null) stm.close();
-	//			if (rSet != null) rSet.close();
-	//
-	//			System.out.print("Getting company from DB by name (" + companyName + "). - Result: ");
-	//			if (company != null) System.out.println("SUCCEEDED!");
-	//			else System.out.println("FALED!");
-	//		}
-	//		return company;
-	//	}
-
-	
-	
-	
-//	public Collection<Coupon> getCouponsByType(CouponType couponType) throws ClassNotFoundException, 
-//	SQLException, InterruptedException {
-//		//		Company loggenInCompany = CompanyRetriever.getLoggedinCompany();
-//		long idOfLoggedinCompany = ClientRetriever.getID();
-//		Collection<Coupon> allCoupons = new ArrayList<>();
-//		Connection tempConn = null;
-//		PreparedStatement stm = null;
-//		ResultSet rSet = null;
-//		ResultSet set = null;
-//		try {
-//			tempConn = pool.getConnection();
-//			tempConn.setAutoCommit(false);
-//
-//			String selectCompany = "SELECT COUPON_ID FROM company_coupon WHERE COMP_ID = ?";
-//			stm = tempConn.prepareStatement(selectCompany);
-//			stm.setLong(1, idOfLoggedinCompany);
-//
-//			rSet = stm.executeQuery();
-//			while (rSet.next()) {
-//				String select = "SELECT * FROM coupon WHERE ID = ? AND TYPE = ?";
-//				stm = tempConn.prepareStatement(select);
-//				stm.setLong(1, rSet.getLong("COUPON_ID"));
-//				stm.setString(2, couponType.toString());
-//
-//				set = stm.executeQuery();
-//				while (set.next()) {
-//					Coupon coupon = new Coupon();
-//					coupon.setId(set.getLong("ID"));
-//					coupon.setTitle(set.getString("TITLE"));
-//					coupon.setStartDate(set.getDate("START_DATE"));
-//					coupon.setEndDate(set.getDate("END_DATE"));
-//					coupon.setAmount(set.getInt("AMOUNT"));
-//					coupon.setType(couponType);
-//					coupon.setMessage(set.getString("MESSAGE"));
-//					coupon.setPrice(set.getDouble("PRICE"));
-//					coupon.setImage(set.getString("IMAGE"));
-//					allCoupons.add(coupon);
-//				}
-//			}
-//			tempConn.commit();
-//
-//			System.out.print("Getting all company's coupons from DB by type (" + couponType.toString() + 
-//					"). - Result: SUCCEEDED!");
-//			if (allCoupons.isEmpty()) System.out.println(" (empty)");
-//			else System.out.println(" (" + allCoupons.size() + ")");
-//		} finally {
-//			if (tempConn != null) pool.returnConnection(tempConn);
-//			if (stm != null) stm.close();
-//			if (rSet != null) rSet.close();
-//			if (set != null) set.close();
-//		}
-//		return allCoupons;
-//	}
-
-	
-	
-	
-//	public Collection<Coupon> getCouponsUpToPrice(double maxPrice) throws ClassNotFoundException, 
-//	SQLException, InterruptedException {
-//		//		Company loggedInCompany = CompanyRetriever.getLoggedinCompany();
-//		long idOfLoggedinCompany = ClientRetriever.getID();
-//		Collection<Coupon> allCoupons = new ArrayList<>();
-//		Connection tempConn = null;
-//		PreparedStatement stm = null;
-//		ResultSet rSet = null;
-//		ResultSet set = null;
-//		try {
-//			tempConn = pool.getConnection();
-//			tempConn.setAutoCommit(false);
-//
-//			String selectCompany = "SELECT COUPON_ID FROM company_coupon WHERE COMP_ID = ?";
-//			stm = tempConn.prepareStatement(selectCompany);
-//			stm.setLong(1, idOfLoggedinCompany);
-//
-//			rSet = stm.executeQuery();
-//			while (rSet.next()) {
-//				String select = "SELECT * FROM coupon WHERE ID = ? AND PRICE < ?";
-//				stm = tempConn.prepareStatement(select);
-//				stm.setLong(1, rSet.getLong("COUPON_ID"));
-//				stm.setDouble(2, maxPrice);
-//
-//				set = stm.executeQuery();
-//				while (set.next()) {
-//					Coupon coupon = new Coupon();
-//					coupon.setId(set.getLong("ID"));
-//					coupon.setTitle(set.getString("TITLE"));
-//					coupon.setStartDate(set.getDate("START_DATE"));
-//					coupon.setEndDate(set.getDate("END_DATE"));
-//					coupon.setAmount(set.getInt("AMOUNT"));
-//					coupon.setType(CouponType.valueOf(set.getString("TYPE")));
-//					coupon.setMessage(set.getString("MESSAGE"));
-//					coupon.setPrice(maxPrice);
-//					coupon.setImage(set.getString("IMAGE"));
-//					allCoupons.add(coupon);
-//				}
-//			}
-//			tempConn.commit();
-//
-//			System.out.print("Getting all company's coupons from DB up to max price (" + maxPrice + 
-//					"). - Result: SUCCEEDED!");
-//			if (allCoupons.isEmpty()) System.out.println(" (empty)");
-//			else System.out.println(" (" + allCoupons.size() + ")");
-//		} finally {
-//			if (tempConn != null) pool.returnConnection(tempConn);
-//			if (stm != null) stm.close();
-//			if (rSet != null) rSet.close();
-//			if (set != null) set.close();
-//		}
-//		return allCoupons;
-//	}
-
-	
-	
-	
-//	public Collection<Coupon> getCouponsUpToDate(Date endDate) throws ClassNotFoundException, 
-//	SQLException, InterruptedException {
-//		//		Company loggedInCompany = CompanyRetriever.getLoggedinCompany();
-//		long idOfLoggedinCompany = ClientRetriever.getID(); 
-//		Collection<Coupon> allCoupons = new ArrayList<>();
-//		Connection tempConn = null;
-//		PreparedStatement stm = null;
-//		ResultSet rSet = null;
-//		ResultSet set = null;
-//		try {
-//			tempConn = pool.getConnection();
-//			tempConn.setAutoCommit(false);
-//
-//			String selectCompany = "SELECT COUPON_ID FROM company_coupon WHERE COMP_ID = ?";
-//			stm = tempConn.prepareStatement(selectCompany);
-//			stm.setLong(1, idOfLoggedinCompany);
-//
-//			rSet = stm.executeQuery();
-//			while (rSet.next()) {
-//				String select = "SELECT * FROM coupon WHERE ID = ? AND DATE(END_DATE) < ?";
-//				stm = tempConn.prepareStatement(select);
-//				stm.setLong(1, rSet.getLong("COUPON_ID"));
-//				stm.setDate(2, endDate);
-//
-//				set = stm.executeQuery();
-//				while (set.next()) {
-//					Coupon coupon = new Coupon();
-//					coupon.setId(set.getLong("ID"));
-//					coupon.setTitle(set.getString("TITLE"));
-//					coupon.setStartDate(set.getDate("START_DATE"));
-//					coupon.setEndDate(endDate);
-//					coupon.setAmount(set.getInt("AMOUNT"));
-//					coupon.setType(CouponType.valueOf(set.getString("TYPE")));
-//					coupon.setMessage(set.getString("MESSAGE"));
-//					coupon.setPrice(set.getDouble("PRICE"));
-//					coupon.setImage(set.getString("IMAGE"));
-//					allCoupons.add(coupon);
-//				}
-//			}
-//			tempConn.commit();
-//
-//			System.out.print("Getting all company's coupons from DB up to " + endDate.toString() + 
-//					". - Result: SUCCEEDED!");
-//			if (allCoupons.isEmpty()) System.out.println(" (empty)");
-//			else System.out.println(" (" + allCoupons.size() + ")");
-//		} finally {
-//			if (tempConn != null) pool.returnConnection(tempConn);
-//			if (stm != null) stm.close();
-//			if (rSet != null) rSet.close();
-//			if (set != null) set.close();
-//		}
-//		return allCoupons;
-//	}
-
 }

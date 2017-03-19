@@ -2,7 +2,17 @@ package basic_classes;
 import java.io.Serializable;
 import java.sql.Date;
 
+/**
+ * this class use is to deposit coupon to the Data Base or to obtain coupon out from DB. 
+ * Using Constructor for all the fields .
+ * getter and setter for all the fields to modify or expose fields when needs
+ * toString for show the coupon instance you have .
+ * @author chaim_chagbi
+ *
+ */
 public class Coupon implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	
 	private long id;
 	private String title;
@@ -14,11 +24,16 @@ public class Coupon implements Serializable {
 	private double price;
 	private String image;
 	
+	/**
+	 * 
+	 * Default constructor
+	 */
 	public Coupon() {
 		// TODO Auto-generated constructor stub
 	}
 
 	/**
+	 * This getter is expose the id that informed at this moment in the id field.
 	 * @return the id
 	 */
 	public long getId() {
@@ -26,6 +41,7 @@ public class Coupon implements Serializable {
 	}
 
 	/**
+	 * this setter is received an id and update the id field. 
 	 * @param id the id to set
 	 */
 	public void setId(long id) {
@@ -33,6 +49,7 @@ public class Coupon implements Serializable {
 	}
 
 	/**
+	 * this getter is expose the coupon title that informed at this moment in the title field.
 	 * @return the title
 	 */
 	public String getTitle() {
@@ -40,6 +57,7 @@ public class Coupon implements Serializable {
 	}
 
 	/**
+	 * this setter is receiving a title and updating the title field.
 	 * @param title the title to set
 	 */
 	public void setTitle(String title) {
@@ -47,6 +65,7 @@ public class Coupon implements Serializable {
 	}
 
 	/**
+	 * this getter is expose the start date of the coupon .
 	 * @return the startDate
 	 */
 	public Date getStartDate() {
@@ -54,6 +73,7 @@ public class Coupon implements Serializable {
 	}
 
 	/**
+	 * this setter receiving a {@link Date}value and set it in the startDate field.
 	 * @param startDate the startDate to set
 	 */
 	public void setStartDate(Date startDate) {
@@ -61,6 +81,7 @@ public class Coupon implements Serializable {
 	}
 
 	/**
+	 * this getter is expose the end date value that informed now.
 	 * @return the endDate
 	 */
 	public Date getEndDate() {
@@ -68,6 +89,7 @@ public class Coupon implements Serializable {
 	}
 
 	/**
+	 * this setter is receiving {@link Date}value and update with it the endDate field.
 	 * @param endDate the endDate to set
 	 */
 	public void setEndDate(Date endDate) {
@@ -75,6 +97,7 @@ public class Coupon implements Serializable {
 	}
 
 	/**
+	 * this getter is exposing the amount that now informed .
 	 * @return the amount
 	 */
 	public int getAmount() {
@@ -82,6 +105,7 @@ public class Coupon implements Serializable {
 	}
 
 	/**
+	 * this setter is receiving an amount value and update the amount field.
 	 * @param amount the amount to set
 	 */
 	public void setAmount(int amount) {
@@ -89,6 +113,7 @@ public class Coupon implements Serializable {
 	}
 
 	/**
+	 * this  getters is exposing the type of the coupon that informed, it's a  CouponType type
 	 * @return the type
 	 */
 	public CouponType getType() {
@@ -96,6 +121,7 @@ public class Coupon implements Serializable {
 	}
 
 	/**
+	 * this setter is setting the coupon type by receiving {@link CouponType} type
 	 * @param type the type to set
 	 */
 	public void setType(CouponType type) {
@@ -103,6 +129,7 @@ public class Coupon implements Serializable {
 	}
 
 	/**
+	 * this getter is for exposing the message of the coupon that informed at this time.
 	 * @return the message
 	 */
 	public String getMessage() {
@@ -110,6 +137,7 @@ public class Coupon implements Serializable {
 	}
 
 	/**
+	 * this setter is receiving a string message and updating the message field with this values.
 	 * @param message the message to set
 	 */
 	public void setMessage(String message) {
@@ -124,6 +152,7 @@ public class Coupon implements Serializable {
 	}
 
 	/**
+	 * this getter is exposing the price of the coupon.
 	 * @param price the price to set
 	 */
 	public void setPrice(double price) {
@@ -131,21 +160,24 @@ public class Coupon implements Serializable {
 	}
 
 	/**
-	 * @return the image
+	 * this is for exposing the image values which is string values.
+	 * @return string that represent t
 	 */
 	public String getImage() {
 		return image;
 	}
 
+	
 	/**
-	 * @param image the image to set
+	 * this is for exposing the image values which is string values.
+	 * this setter is receiving a price to update the price field.
 	 */
 	public void setImage(String image) {
 		this.image = image;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/**
+	 * this is an override of the toString which is assigned to extract the coupon instance with it's all details.
 	 */
 	@Override
 	public String toString() {

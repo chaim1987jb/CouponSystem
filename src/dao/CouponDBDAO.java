@@ -6,12 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 
-import basic_classes.Company;
 import basic_classes.ClientRetriever;
-import basic_classes.ConnectionPool;
 import basic_classes.Coupon;
 import basic_classes.CouponType;
 import exceptions.CouponNotFoundException;
@@ -26,6 +23,7 @@ public class CouponDBDAO implements CouponDAO {
 		pool = ConnectionPool.getInstance();
 	}
 
+	@SuppressWarnings("resource")
 	@Override
 	public void createCoupon(Coupon coupon) throws DuplicateCouponException, ClassNotFoundException, 
 	SQLException, InterruptedException, CouponNotFoundException, SystemGoingDownException {
@@ -88,6 +86,7 @@ public class CouponDBDAO implements CouponDAO {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Override
 	public void removeCoupon(Coupon coupon) throws ClassNotFoundException, SQLException, 
 	InterruptedException, CouponNotFoundException, SystemGoingDownException {
@@ -142,6 +141,7 @@ public class CouponDBDAO implements CouponDAO {
 		PreparedStatement stm = null;
 		try {
 			tempConn = pool.getConnection();
+			tempConn.setAutoCommit(false);
 
 			String updateCoupon = "UPDATE coupon SET END_DATE = ?, PRICE = ? WHERE ID = ?";
 			stm = tempConn.prepareStatement(updateCoupon);
@@ -149,6 +149,7 @@ public class CouponDBDAO implements CouponDAO {
 			stm.setDouble(2, coupon.getPrice());
 			stm.setLong	 (3, coupon.getId());
 			stm.executeUpdate();
+			tempConn.commit();
 
 			System.out.println("Updating coupon (" + coupon.getTitle() + ") in DB. - Result: SUCCEEDED!");
 		} finally {
@@ -287,7 +288,17 @@ public class CouponDBDAO implements CouponDAO {
 		}
 		return allCoupons;
 	}
-
+	/**
+	 * This method is extract the coupons  ArrayList by price
+     * the type is a  CouponType enumClass type that defines the category of the coupon.
+     * quarry and returning an ArrayList.
+	 * @param maxPrice - limits price of collection of coupon
+	 * @return - collection of coupons by price
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 * @throws InterruptedException
+	 * @throws SystemGoingDownException
+	 */
 	public Collection<Coupon> getCouponByPrice(double maxPrice) throws ClassNotFoundException, 
 	SQLException, InterruptedException, SystemGoingDownException {
 		if (pool.getSystemStatus()) {
@@ -331,7 +342,15 @@ public class CouponDBDAO implements CouponDAO {
 		}
 		return allCoupons;
 	}
-
+	/**
+	 * This method is extract the coupons  ArrayList by endDate
+	 * @param endDate - return coupon by endDate
+	 * @return - collection of coupons by endDate 
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 * @throws InterruptedException
+	 * @throws SystemGoingDownException
+	 */
 	public Collection<Coupon> getCouponByEndDate(Date endDate) throws ClassNotFoundException, 
 	SQLException, InterruptedException, SystemGoingDownException {
 		if (pool.getSystemStatus()) {
@@ -373,78 +392,5 @@ public class CouponDBDAO implements CouponDAO {
 			if (rSet != null) rSet.close();
 		}
 		return allCoupons;
-	}
-	
-//	public long getID(String couponTitle) throws ClassNotFoundException, SQLException, 
-//	InterruptedException, SystemGoingDownException {
-//		if (pool.getSystemStatus()) {
-//			throw new SystemGoingDownException("System going down!");
-//		}
-//		
-//		long couponID = -1;
-//		if (couponTitle != null && !couponTitle.isEmpty()) {
-//			Connection tempConn = null;
-//			PreparedStatement stm = null;
-//			ResultSet set = null;
-//			try {
-//				tempConn = pool.getConnection();
-//
-//				String select = "SELECT ID FROM coupon WHERE TITLE = ?";
-//				stm = tempConn.prepareStatement(select);
-//				stm.setString(1, couponTitle);
-//				set = stm.executeQuery();
-//				if (set.next()) {
-//					couponID = set.getLong("ID");
-//				}
-//			} finally {
-//				if (tempConn != null) pool.returnConnection(tempConn);
-//				if (stm != null) stm.close();
-//				if (set != null) set.close();
-//
-//				System.out.print(" - Getting id of coupon by name (" + couponID + "). - Result: ");
-//				if (couponID == -1) System.out.println("FAILED! -");
-//				else System.out.println("SUCCEEDED! -");
-//			}
-//		}
-//		return couponID;
-//	}
-//	
-	
-//	public Coupon getCoupon(String title) throws ClassNotFoundException, SQLException, InterruptedException {
-//		Coupon coupon = null;
-//		Connection tempConn = null;
-//		PreparedStatement stm = null;
-//		ResultSet rSet = null;
-//		try {
-//			tempConn = pool.getConnection();
-//	
-//			String selectCoupon = "SELECT * FROM coupon WHERE TITLE = ?";
-//			stm = tempConn.prepareStatement(selectCoupon);
-//			stm.setString(1, title);
-//	
-//			rSet = stm.executeQuery();
-//			while (rSet.next()) {
-//				coupon = new Coupon();
-//				coupon.setId(rSet.getLong("ID"));
-//				coupon.setTitle(title);
-//				coupon.setStartDate(rSet.getDate("START_DATE"));
-//				coupon.setEndDate(rSet.getDate("END_DATE"));
-//				coupon.setAmount(rSet.getInt("AMOUNT"));
-//				coupon.setType(CouponType.valueOf(rSet.getString("TYPE")));
-//				coupon.setMessage(rSet.getString("MESSAGE"));
-//				coupon.setPrice(rSet.getDouble("PRICE"));
-//				coupon.setImage(rSet.getString("IMAGE"));
-//			}
-//		} finally {
-//			if (tempConn != null) pool.returnConnection(tempConn);
-//			if (stm != null) stm.close();
-//			if (rSet != null) rSet.close();
-//			
-//			System.out.print("Getting coupon from DB by title (" + title + "). - Result: ");
-//			if (coupon != null) System.out.println("SUCCEEDED!");
-//			else System.out.println("FALED!");
-//		}
-//		return coupon;
-//	}
-	
+	}		
 }

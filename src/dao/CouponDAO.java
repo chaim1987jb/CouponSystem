@@ -9,10 +9,16 @@ import exceptions.CouponNotFoundException;
 import exceptions.DuplicateCouponException;
 import exceptions.SystemGoingDownException;
 
+/**
+ * This interface class is designed to bound the implements class to apply the following method.
+ * @author chaim_chagbi
+ *
+ */
 public interface CouponDAO {
 	
 	/**
-	 * @param coupon
+	 * Adds new coupon into database
+	 * @param coupon - coupon to add into database
 	 * @throws DuplicateCouponException 
 	 * @throws InterruptedException 
 	 * @throws SQLException 
@@ -23,7 +29,8 @@ public interface CouponDAO {
 	public void createCoupon(Coupon coupon) throws DuplicateCouponException, ClassNotFoundException, SQLException, InterruptedException, CouponNotFoundException, SystemGoingDownException;
 	
 	/**
-	 * @param coupon
+	 * Remove specified coupon from database
+	 * @param coupon - coupon to remove from database
 	 * @throws InterruptedException 
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException 
@@ -33,7 +40,8 @@ public interface CouponDAO {
 	public void removeCoupon(Coupon coupon) throws ClassNotFoundException, SQLException, InterruptedException, CouponNotFoundException, SystemGoingDownException;
 	
 	/**
-	 * @param coupon
+	 * Update specified coupon into database
+	 * @param coupon - coupon to update from database
 	 * @throws InterruptedException 
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException 
@@ -43,8 +51,9 @@ public interface CouponDAO {
 	public void updateCoupon(Coupon coupon) throws ClassNotFoundException, SQLException, InterruptedException, CouponNotFoundException, SystemGoingDownException;
 	
 	/**
-	 * @param id
-	 * @return
+	 * Get specified coupon from database 
+	 * @param id - id coupon from database
+	 * @return - return company 
 	 * @throws InterruptedException 
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException 
@@ -53,7 +62,8 @@ public interface CouponDAO {
 	public Coupon getCoupon(long id) throws ClassNotFoundException, SQLException, InterruptedException, SystemGoingDownException;
 	
 	/**
-	 * @return
+	 * Get collection of all available coupons
+	 * @return -  collection of all available coupons
 	 * @throws InterruptedException 
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException 
@@ -62,8 +72,9 @@ public interface CouponDAO {
 	public Collection<Coupon> getAllCoupon() throws ClassNotFoundException, SQLException, InterruptedException, SystemGoingDownException;
 	
 	/**
-	 * @param couponType
-	 * @return
+	 * Get collection of all available coupons by type
+	 * @param couponType - collection of all coupon by type
+	 * @return - collection of all available coupons by type
 	 * @throws InterruptedException 
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException 

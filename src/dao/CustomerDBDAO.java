@@ -1,6 +1,6 @@
 package dao;
 
-import java.sql.Connection;
+	import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,7 +10,6 @@ import java.util.Calendar;
 import java.util.Collection;
 
 import basic_classes.ClientRetriever;
-import basic_classes.ConnectionPool;
 import basic_classes.Coupon;
 import basic_classes.CouponType;
 import basic_classes.Customer;
@@ -18,10 +17,24 @@ import exceptions.CouponNotFoundException;
 import exceptions.CustomerNotFoundException;
 import exceptions.DuplicateCustomerException;
 import exceptions.SystemGoingDownException;
-
-public class CustomerDBDAO implements CustomerDAO {
+	/**
+	 * The class CustomerDBDAO is the class that do all the required access
+	 * work with DB using the methods below.
+	 * implements CustomerDAO and apply the following methods.
+	 * this class using the SqlQueries class for all the SQL queries 
+	 * in all methods.
+	 * @author chaim_chagbi
+	 */
+	public class CustomerDBDAO implements CustomerDAO {
+	
+	/** Field represents connection pool ....*/
 	private ConnectionPool pool;
-
+	
+	/**
+	 * Creates new instance of connection pool
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public CustomerDBDAO() throws ClassNotFoundException, SQLException {
 		pool = ConnectionPool.getInstance();
 	}
@@ -64,6 +77,7 @@ public class CustomerDBDAO implements CustomerDAO {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Override
 	public void removeCustomer(Customer customer) throws ClassNotFoundException, SQLException, 
 	InterruptedException, CustomerNotFoundException, SystemGoingDownException {
@@ -117,12 +131,14 @@ public class CustomerDBDAO implements CustomerDAO {
 		PreparedStatement stm = null;
 		try {
 			tempConn = pool.getConnection();
+			tempConn.setAutoCommit(false);
 
 			String updateCustomer = "UPDATE customer SET PASSWORD = ? WHERE ID = ?";
 			stm = tempConn.prepareStatement(updateCustomer);
 			stm.setString(1, customer.getPassword());
 			stm.setLong	 (2, customer.getId());
 			stm.executeUpdate();
+			tempConn.commit();
 
 			System.out.println(" *** Updating customer (" + customer.getCustName() + 
 					") in DB. - Result: SUCCEEDED! ***");
@@ -255,6 +271,16 @@ public class CustomerDBDAO implements CustomerDAO {
 		return flag;
 	}
 	
+	/**
+	 * * Checks if database contains customer with specified name. 
+	 * If customer exists returns its id, otherwise -1.
+	 * @param customerName - String representing specified customer name to check
+	 * @return id of customer if it exists in DB, otherwise -1
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 * @throws InterruptedException
+	 * @throws SystemGoingDownException
+	 */
 	public long getID(String customerName) throws ClassNotFoundException, SQLException, 
 	InterruptedException, SystemGoingDownException {
 		if (pool.getSystemStatus()) {
@@ -288,6 +314,17 @@ public class CustomerDBDAO implements CustomerDAO {
 		}
 		return customerID;
 	}
+	
+	/**
+	 * /**
+	 * Gets all customers collection of coupons by specified customer id
+	 * @param customerId - specified id of customer
+	 * @return - collection of coupons  of specified customer
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 * @throws InterruptedException
+	 * @throws SystemGoingDownException
+	 */
 	
 	private Collection<Coupon> getCouponsByID(long customerID) throws ClassNotFoundException, 
 	SQLException, InterruptedException, SystemGoingDownException {
@@ -342,7 +379,18 @@ public class CustomerDBDAO implements CustomerDAO {
 		}
 		return allCoupons;
 	}
+	
+	/**
+	 * 
+	 * @param coupon
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 * @throws InterruptedException
+	 * @throws CouponNotFoundException
+	 * @throws SystemGoingDownException
+	 */
 
+	@SuppressWarnings("resource")
 	public void purchaseCoupon(Coupon coupon) throws ClassNotFoundException, SQLException, 
 	InterruptedException, CouponNotFoundException, SystemGoingDownException {
 		if (coupon == null) {
@@ -400,38 +448,5 @@ public class CustomerDBDAO implements CustomerDAO {
 				}
 			}
 		}
-	}
-	
-	
-//	public Customer getCustomer(String customerName) throws ClassNotFoundException, SQLException, InterruptedException {
-//		Customer customer = null;
-//		Connection tempConn = null;
-//		PreparedStatement stm = null;
-//		ResultSet rSet = null;
-//		try {
-//			tempConn = pool.getConnection();
-//	
-//			String selectCustomer = "SELECT * FROM customer WHERE CUST_NAME = ?";
-//			stm = tempConn.prepareStatement(selectCustomer);
-//			stm.setString(1, customerName);
-//	
-//			rSet = stm.executeQuery();
-//			while (rSet.next()) {
-//				customer = new Customer();
-//				customer.setId(rSet.getLong("ID"));
-//				customer.setCustName(customerName);
-//				customer.setPassword(rSet.getString("PASSWORD"));
-//			}
-//		} finally {
-//			if (tempConn != null) pool.returnConnection(tempConn);
-//			if (stm != null) stm.close();
-//			if (rSet != null) rSet.close();
-//			
-//			System.out.print("Getting customer from DB by name (" + customerName + "). - Result: ");
-//			if (customer != null) System.out.println("SUCCEEDED!");
-//			else System.out.println("FALED!");
-//		}
-//		return customer;
-//	}
-
+	}	
 }
